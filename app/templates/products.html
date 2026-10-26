@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Products · LocalBiz Manager{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">INVENTORY</div><h1 class="h2 fw-bold mb-1">Products</h1><p class="text-secondary mb-0">Keep stock and pricing up to date.</p></div>{% if current_user.role.name in ['owner','manager'] %}<a class="btn btn-primary" href="{{ url_for('products.create') }}">+ Add product</a>{% endif %}</div>
+<section class="panel mt-4">
+  <div class="d-flex flex-column flex-md-row gap-2 justify-content-between mb-3">
+    <form class="d-flex gap-2 flex-grow-1" method="get"><input class="form-control" type="search" name="q" value="{{ search }}" placeholder="Search product or SKU" aria-label="Search products"><button class="btn btn-outline-secondary">Search</button></form>
+    {% if current_user.role.name in ['owner','manager'] %}<div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="{{ url_for('products.export_csv') }}">Export CSV</a><form class="d-flex gap-2" method="post" action="{{ url_for('products.import_csv') }}" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input class="form-control form-control-sm" type="file" name="file" accept=".csv" required aria-label="CSV file"><button class="btn btn-outline-primary">Import</button></form></div>{% endif %}
+  </div>
+  {% if products %}<div class="table-responsive"><table class="table align-middle"><thead><tr><th>Product</th><th>SKU</th><th>Cost</th><th>Price</th><th>Stock</th><th></th></tr></thead><tbody>
+  {% for product in products %}<tr><td class="fw-semibold">{{ product.name }}{% if product.qty <= product.low_stock_threshold %}<span class="badge text-bg-warning ms-2">Low</span>{% endif %}</td><td class="text-secondary">{{ product.sku }}</td><td>{{ product.buy_price|naira }}</td><td>{{ product.sell_price|naira }}</td><td>{{ product.qty }}</td><td class="text-end text-nowrap">{% if current_user.role.name in ['owner','manager'] %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('products.edit', product_id=product.id) }}">Edit</a><form class="d-inline" method="post" action="{{ url_for('products.archive', product_id=product.id) }}" data-confirm="Archive {{ product.name }}?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger">Archive</button></form>{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty-state"><span class="empty-icon">▦</span><h2 class="h5">No products found</h2><p class="text-secondary">Add your first product or try another search.</p>{% if current_user.role.name in ['owner','manager'] %}<a class="btn btn-primary" href="{{ url_for('products.create') }}">Add product</a>{% endif %}</div>{% endif %}
+</section>
+{% endblock %}

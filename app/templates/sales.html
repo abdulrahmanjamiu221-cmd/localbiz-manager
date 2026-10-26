@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Sales · LocalBiz Manager{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">TRANSACTIONS</div><h1 class="h2 fw-bold mb-1">Sales history</h1><p class="text-secondary mb-0">Your latest completed checkouts.</p></div><a href="{{ url_for('sales.pos') }}" class="btn btn-primary">+ New sale</a></div>
+<section class="panel mt-4">
+{% if sales %}<div class="table-responsive"><table class="table align-middle"><thead><tr><th>Receipt</th><th>Date & time</th><th>Customer</th><th>Payment</th><th>Total</th><th></th></tr></thead><tbody>
+{% for sale in sales %}<tr><td class="fw-semibold">{{ sale.receipt_number }}</td><td>{{ sale.created_at|nigeria_time }}</td><td>{{ sale.customer.name if sale.customer else "Walk-in" }}</td><td>{% for payment in sale.payments %}<span class="badge text-bg-light">{{ payment.method|capitalize }}</span>{% endfor %}{% if sale.total > sale.payments|sum(attribute='amount') %}<span class="badge text-bg-warning">Credit</span>{% endif %}</td><td class="fw-bold">{{ sale.total|naira }}</td><td><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('sales.receipt', sale_id=sale.id) }}">Receipt</a></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<div class="empty-state"><span class="empty-icon">₦</span><h2 class="h5">No sales yet</h2><p class="text-secondary">Completed checkouts will appear here.</p><a href="{{ url_for('sales.pos') }}" class="btn btn-primary">Start a sale</a></div>{% endif %}
+</section>
+{% endblock %}

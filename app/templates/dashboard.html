@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · {{ business.name }}{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><div class="eyebrow">OVERVIEW · {{ business.name }}</div><h1 class="h2 fw-bold mb-1">Good day, {{ current_user.name.split(' ')[0] }}</h1><p class="text-secondary mb-0">Here's how your shop is doing today.</p></div>
+  <a class="btn btn-primary" href="{{ url_for('sales.pos') }}">+ New sale</a>
+</div>
+<div class="row g-3 mt-1">
+  <div class="col-6 col-lg-3"><div class="metric-card"><span>Today's sales</span><strong>{{ gross_sales|naira }}</strong><small>{{ sale_count }} transaction(s)</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-card"><span>Today's profit</span><strong class="{{ 'text-success' if net_profit >= 0 else 'text-danger' }}">{{ net_profit|naira }}</strong><small>After cost of goods & expenses</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-card"><span>Expenses today</span><strong>{{ expenses|naira }}</strong><small>Recorded shop expenses</small></div></div>
+  <div class="col-6 col-lg-3"><div class="metric-card"><span>Low stock items</span><strong>{{ low_stock|length }}</strong><small>At or below reorder level</small></div></div>
+</div>
+<div class="row g-3 mt-1">
+  <div class="col-lg-7">
+    <section class="panel h-100">
+      <div class="section-heading"><div><h2 class="h5 fw-bold mb-1">Payment summary</h2><p class="small text-secondary mb-0">Collected from today's sales</p></div></div>
+      <div class="payment-grid">
+        {% for method, label in [('cash','Cash'),('transfer','Transfer'),('card','Card')] %}
+        <div class="payment-chip"><span>{{ label }}</span><strong>{{ (payment_totals.get(method, 0) or 0)|naira }}</strong></div>
+        {% endfor %}
+      </div>
+      <div class="mt-4 section-heading"><div><h2 class="h5 fw-bold mb-0">Low stock</h2></div><a href="{{ url_for('products.index') }}" class="small">View products</a></div>
+      {% if low_stock %}<div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Product</th><th>Stock</th><th>Alert at</th></tr></thead><tbody>{% for product in low_stock %}<tr><td class="fw-semibold">{{ product.name }}</td><td><span class="badge text-bg-warning">{{ product.qty }}</span></td><td>{{ product.low_stock_threshold }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state"><span class="empty-icon">✓</span><p class="mb-0">Stock levels look healthy.</p></div>{% endif %}
+    </section>
+  </div>
+  <div class="col-lg-5">
+    <section class="panel h-100">
+      <div class="section-heading"><div><h2 class="h5 fw-bold mb-1">Customers to follow up</h2><p class="small text-secondary mb-0">Outstanding credit balances</p></div><a href="{{ url_for('customers.index') }}" class="small">All customers</a></div>
+      {% if debtors %}<div class="list-group list-group-flush">{% for customer, balance in debtors %}<a class="list-group-item list-group-item-action debtor-row" href="{{ url_for('customers.detail', customer_id=customer.id) }}"><span><strong>{{ customer.name }}</strong><small>{{ customer.phone or 'No phone saved' }}</small></span><strong class="text-danger">{{ balance|naira }}</strong></a>{% endfor %}</div>{% else %}<div class="empty-state"><span class="empty-icon">✓</span><p class="mb-0">No outstanding customer balances.</p></div>{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

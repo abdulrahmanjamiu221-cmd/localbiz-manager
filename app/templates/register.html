@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Register business · LocalBiz Manager{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <section class="auth-card card border-0 shadow-sm">
+    <div class="card-body p-4 p-md-5">
+      <div class="eyebrow">START SELLING SMARTER</div>
+      <h1 class="h3 fw-bold mt-2">Set up your business</h1>
+      <p class="text-secondary mb-4">Create a private workspace for your shop.</p>
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        {% for field in [form.business_name, form.owner_name, form.email, form.phone, form.password, form.confirm] %}
+        <div class="mb-3">{{ field.label(class="form-label") }}{{ field(class="form-control", autocomplete="new-password" if field.name in ['password','confirm'] else 'off') }}{% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}</div>
+        {% endfor %}
+        {{ form.submit(class="btn btn-primary btn-lg w-100 mt-2") }}
+      </form>
+      <p class="text-center mt-4 mb-0 text-secondary">Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

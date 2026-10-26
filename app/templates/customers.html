@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Customers · LocalBiz Manager{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">CUSTOMER ACCOUNTS</div><h1 class="h2 fw-bold mb-1">Customers</h1><p class="text-secondary mb-0">Keep customer details and credit balances together.</p></div><a class="btn btn-primary" href="{{ url_for('customers.create') }}">+ Add customer</a></div>
+<section class="panel mt-4">
+{% if customers %}<div class="table-responsive"><table class="table align-middle"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Outstanding balance</th><th></th></tr></thead><tbody>{% for customer in customers %}<tr><td class="fw-semibold">{{ customer.name }}</td><td>{{ customer.phone or "—" }}</td><td>{{ customer.email or "—" }}</td><td class="{{ 'text-danger fw-bold' if balances[customer.id] > 0 else 'text-secondary' }}">{{ balances[customer.id]|naira }}</td><td class="text-end"><a href="{{ url_for('customers.detail', customer_id=customer.id) }}" class="btn btn-sm btn-outline-primary">View account</a></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state"><h2 class="h5">No customers added</h2><p class="text-secondary">Save customer details when recording credit or repayments.</p><a href="{{ url_for('customers.create') }}" class="btn btn-primary">Add customer</a></div>{% endif %}
+</section>
+{% endblock %}

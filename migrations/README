@@ -1,0 +1,5 @@
+LocalBiz Manager database migrations.
+
+Apply committed migrations with `flask db upgrade`.
+Create future migrations with `flask db migrate -m "describe schema change"`,
+review the generated revision, then apply it with `flask db upgrade`.

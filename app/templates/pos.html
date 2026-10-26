@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Checkout · LocalBiz Manager{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">POINT OF SALE</div><h1 class="h2 fw-bold mb-1">New sale</h1><p class="text-secondary mb-0">Add items, select payment and complete checkout.</p></div><a href="{{ url_for('sales.index') }}" class="btn btn-outline-secondary">Sales history</a></div>
+<div class="row g-3 mt-1">
+  <div class="col-lg-7"><section class="panel">
+    <label class="form-label fw-semibold" for="productSearch">Find a product</label><input id="productSearch" class="form-control form-control-lg mb-3" type="search" placeholder="Search by name or SKU" autocomplete="off">
+    <div id="productResults" class="product-results">
+    {% for p in products %}<button type="button" class="product-choice" data-product-id="{{ p.id }}" data-name="{{ p.name }}" data-sku="{{ p.sku }}" data-price="{{ p.sell_price }}" data-stock="{{ p.qty }}" {% if p.qty <= 0 %}disabled{% endif %}><span><strong>{{ p.name }}</strong><small>{{ p.sku }} · {{ p.qty }} in stock</small></span><b>{{ p.sell_price|naira }}</b></button>{% endfor %}
+    </div>
+    {% if not products %}<div class="empty-state"><h2 class="h5">No products yet</h2><p class="text-secondary">Add products before starting a sale.</p><a href="{{ url_for('products.create') }}" class="btn btn-primary">Add product</a></div>{% endif %}
+  </section></div>
+  <div class="col-lg-5"><section class="panel pos-cart">
+    <h2 class="h5 fw-bold mb-3">Current sale</h2>
+    <div id="cartEmpty" class="empty-cart">Your cart is empty. Add products to begin.</div>
+    <div class="table-responsive"><table class="table align-middle" id="cartTable"><tbody id="cartRows"></tbody></table></div>
+    <div class="border-top pt-3">
+      <label class="form-label small fw-semibold" for="discount">Discount (₦)</label><input class="form-control mb-3" id="discount" type="number" min="0" step="0.01" value="0">
+      <label class="form-label small fw-semibold" for="customer">Customer (required for credit)</label><select class="form-select mb-3" id="customer"><option value="">Walk-in customer</option>{% for customer in customers %}<option value="{{ customer.id }}">{{ customer.name }}{% if customer.phone %} · {{ customer.phone }}{% endif %}</option>{% endfor %}</select>
+      <div class="payment-fields">
+        {% for method, label in [('cash','Cash'),('transfer','Transfer'),('card','Card')] %}<div><label class="form-label small" for="pay-{{ method }}">{{ label }} (₦)</label><input class="form-control payment-input" id="pay-{{ method }}" type="number" min="0" step="0.01" value="{{ '' if method != 'cash' else '0' }}" inputmode="decimal"></div>{% endfor %}
+      </div>
+      <div class="totals mt-3"><div><span>Subtotal</span><strong id="subtotal">₦0.00</strong></div><div><span>Discount</span><strong id="discountTotal">₦0.00</strong></div><div class="grand-total"><span>Total</span><strong id="total">₦0.00</strong></div><div><span>Paid</span><strong id="paid">₦0.00</strong></div><div><span>Credit due</span><strong id="creditDue">₦0.00</strong></div></div>
+      <div id="checkoutError" class="alert alert-danger mt-3 d-none" role="alert"></div>
+      <button id="checkoutButton" class="btn btn-primary btn-lg w-100 mt-3" type="button" disabled>Complete sale</button>
+    </div>
+  </section></div>
+</div>
+<input type="hidden" id="csrf-token" value="{{ csrf_token() }}">
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pos.js') }}"></script>{% endblock %}
